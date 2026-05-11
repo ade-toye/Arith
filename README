@@ -1,0 +1,43 @@
+Authors: Toye Adebayo (aadeb02) and Valens Dabagire (vdabag01).
+
+This project implements the 40image program for the image format. 
+The program supports two modes: compress (-c) and decompress (-d). 
+It reads input from a filename if one is provided, otherwise it 
+reads from standard input, and it writes all output to standard output.
+
+The main entry point is 40image.c, which handles the command-line 
+arguments and then calls either compress40 or decompress40. The 
+core compression/decompression pipeline is implemented in compress40.c 
+/ compress40.h. Compression trims images with odd dimensions to an 
+even width/height, converts each pixel from RGB to component video 
+(YPbPr), processes the image in 2x2 blocks, applies the discrete 
+cosine transform (DCT) to the four Y values, quantizes the coefficients, 
+quantizes the average chroma values using the provided arith40 functions, 
+packs everything into a 32-bit codeword using Bitpack, and writes 
+each codeword in big-endian byte order with the required header. 
+Decompression reads and checks the header, reads codewords in 
+big-endian order, unpacks the fields, dequantizes, runs the inverse DCT, 
+converts the resulting YPbPr values back to RGB, clamps values to 
+valid ranges, stores pixels into the output array, and finally 
+writes a PPM image.
+
+The math and conversion helpers are split into separate modules. 
+pixel_conversion.c / pixel_conversion.h handles RGB to YPbPr conversion, 
+quantization/unquantization for the small DCT coefficients (b, c, d), 
+and clamps RGB values before scaling to the output denominator. dct.c / 
+dct.h implements the 2x2 DCT and inverse DCT. bitpack.c implements 
+the Bitpack interface, including fit checks, field extraction, and 
+field insertion, and it raises Bitpack_Overflow when values do not 
+fit in the requested bit width. The project also uses uarray2.c/h 
+and uarray2b.c for 2D array support used by the A2Methods blocked 
+array interface.
+
+We discussed the assignment and testing approach with classmates at a 
+high level, but we did not copy code from other students. We used 
+course-provided libraries and interfaces, including arith40, pnm, 
+and a2methods.
+
+All required parts of the assignment are implemented.
+
+We spent approximately 5 hours on analysis and design, and approximately 
+30 hours on implementation, debugging, and testing.
